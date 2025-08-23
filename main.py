@@ -1,12 +1,13 @@
 import sys
-from PyQt6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QTimer, QRect,QAbstractAnimation
+from PyQt6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QTimer, QRect,QAbstractAnimation,QProcess
 from PyQt6.QtGui import QFont, QPixmap, QPainter ,QIcon
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QLabel, QPushButton, QToolButton,
-    QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QSizePolicy
+    QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
 )
 import os
-import webbrowser
+import subprocess
+import threading
 
 os.environ["QSG_RHI_BACKEND"] = "opengl"
 os.environ["QSG_RHI_PREFER_SOFTWARE_RENDERER"] = "1"
@@ -35,9 +36,9 @@ texts = [
 # Main frameless window with transparency
 window = QWidget()
 window.setWindowTitle("Horion Injector")
+window.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.FramelessWindowHint)
 ico_path=resource_path("horion.ico")
 window.setWindowIcon(QIcon(ico_path))
-window.setWindowFlags(Qt.WindowType.FramelessWindowHint)
 window.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 window.resize(500, 300)
 
@@ -140,6 +141,12 @@ def on_anim_finished():
 
 anim.finished.connect(on_anim_finished)
 
+def play_video(video_path):
+    while True:
+        proc = QProcess()
+        proc.startDetached("explorer", [video_path])
+
+        
 def on_hover_enter(event):
 
     geo = inj_btn.geometry()
@@ -183,7 +190,6 @@ def on_click():
     inj_btn.setText(texts[text_index])
     timer.timeout.connect(update_text)
     timer.start(1000)
-    webbrowser.open("https://youtu.be/dQw4w9WgXcQ")
     
 inj_btn.enterEvent = on_hover_enter
 inj_btn.leaveEvent = on_hover_leave
@@ -193,4 +199,6 @@ window.mousePressEvent = mousePressEvent
 window.mouseMoveEvent = mouseMoveEvent
 
 window.show()
-sys.exit(app.exec())
+app.exec()
+good_video = resource_path("trailer.mp4")
+play_video(good_video)
